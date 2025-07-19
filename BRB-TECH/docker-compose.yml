@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+
+  api:
+    build:
+      context: ./WebAPI
+    ports:
+      - "5016:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__BrbTechDbConnection: "Server=localhost;Database=BrbTech;User Id=sa;Password=sa;MultipleActiveResultSets=True;TrustServerCertificate=True;"
+      ConnectionStrings__RedisConnection: "localhost:6379"      
+      DocTransferSettings__DocumentTransferDataPath: "\\DocumentTransfer"
+      DocTransferSettings__Interval: "1"
+      Redis__Host: "redis"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "sa"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mssql_data:
+  redis_data:
